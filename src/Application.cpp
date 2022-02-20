@@ -205,9 +205,16 @@ void Application::run()
     }
     // ****************************** CUBE END ******************************
 
+    //cubeShader
+    Shader cubeShader("plainCube.shader");
+    glm::vec3 lightPos(-25.0f, 25.0f, 25.0f);
+
     //model
     Shader modelShader("Model.shader");
-    Model backpack("../res/objects/backpack/backpack.obj");
+    Model ground("../res/objects/scene/ground.obj");
+    Model trees("../res/objects/scene/trees.obj");
+    Model base("../res/objects/scene/base_vase.obj");
+    Model dharahara("../res/objects/scene/dharahara.obj");
 
     //projection view matrices init
     glm::mat4 projection, view, model, transform;
@@ -225,36 +232,36 @@ void Application::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //setup camera
-        projection = glm::perspective(glm::radians(camera.Zoom), (float)m_width / (float)m_height, 0.1f, 250.0f);
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)m_width / (float)m_height, 0.1f, 280.0f);
         view = camera.GetViewMatrix();
         
         // ****************************** Plain ******************************
-        {
-            squareShader.use();
-            float scaleFactor = 1;
-            int width = 40;
-            for (int i = -1 * width; i <= width; i++)
-            {
-                for (int j = -1 * width; j <= width; j++)
-                {
-                    model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-                    model = glm::scale(model, glm::vec3(scaleFactor));
-                    model = glm::translate(model, glm::vec3(i * scaleFactor * 2, j * scaleFactor * 2, 0.0f));
-                    transform = projection * view * model;
-                    squareShader.setMat4("transform", transform);
-                    squareShader.setInt("texture1", 0);
-                    plainTexture.Bind(0);
-                    glBindVertexArray(square.vao);
-                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                }
-            }
-        }
+        // {
+        //     squareShader.use();
+        //     float scaleFactor = 1;
+        //     int width = 40;
+        //     for (int i = -1 * width; i <= width; i++)
+        //     {
+        //         for (int j = -1 * width; j <= width; j++)
+        //         {
+        //             model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        //             model = glm::scale(model, glm::vec3(scaleFactor));
+        //             model = glm::translate(model, glm::vec3(i * scaleFactor * 2, j * scaleFactor * 2, 0.0f));
+        //             transform = projection * view * model;
+        //             squareShader.setMat4("transform", transform);
+        //             squareShader.setInt("texture1", 0);
+        //             plainTexture.Bind(0);
+        //             glBindVertexArray(square.vao);
+        //             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //         }
+        //     }
+        // }
 
         // ****************************** SkyBlock ******************************
         {
             skyShader.use();
-            float Scale = 80.0f;
-            float offset = 79.9f;
+            float Scale = 160.0f;
+            float offset = 159.8f;
             float y_offset = 4.0f;
             //left
             {
@@ -329,20 +336,39 @@ void Application::run()
             }
         }
 
+        //light
+        {
+            model = glm::mat4(1.0f);
+            model = glm::scale(model, glm::vec3(0.2f));
+            model = glm::translate(model, lightPos / 0.2f);
+            transform = projection * view * model;
+            cubeShader.use();
+            cubeShader.setMat4("transform", transform);
+            glBindVertexArray(cube.vao);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
         //model
         {
             modelShader.use();
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, 2.0f + 0.15 * (float)sin( glfwGetTime() * 4 ), 0.0f));
-            model = glm::rotate(model, glm::radians(30.0f * (float)glfwGetTime() ), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::scale(model, glm::vec3(0.5f));
-            transform = projection * view * model;
-            modelShader.setMat4("transform", transform);
-            backpack.Draw(modelShader);
+            for (int i = 0; i < 9; i++)
+            {
+                model = glm::mat4(1.0f);
+                transform = projection * view * model;
+                modelShader.setMat4("transform", transform);
+                modelShader.setMat4("model", model);
+                modelShader.setVec3("lightPos", lightPos);
+                modelShader.setVec3("viewPos", camera.Position);
+                ground.Draw(modelShader);
+                trees.Draw(modelShader);
+                base.Draw(modelShader);
+                dharahara.Draw(modelShader);
+            }
         }
 
         glfwSwapBuffers(m_window);
         glfwPollEvents();
+        // exit(0);
     }
 }
 

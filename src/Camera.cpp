@@ -48,7 +48,7 @@ void Camera::ProcessKeyboard( CameraMovement direction, float deltaTime )
         Position += constUp * velocity;
     if ( direction == DOWN )
         Position -= constUp * velocity;
-    constrainHeight();
+    // constrainHeight();
 }
 
 void Camera::constrainHeight()
