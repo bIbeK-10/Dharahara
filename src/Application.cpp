@@ -10,7 +10,7 @@
 #include "Model.hpp"
 
 //Camera construct
-Camera camera(0.0f, 1.5f, 10.0f);
+Camera camera(20.0f, 1.5f, 30.0f);
 float lastX = 1366/2;
 float lastY = 768/2;
 bool firstMouse = true;
@@ -212,8 +212,6 @@ void Application::run()
     //model
     Shader modelShader("Model.shader");
     Model ground("../res/objects/scene/ground.obj");
-    Model trees("../res/objects/scene/trees.obj");
-    Model base("../res/objects/scene/base_vase.obj");
     Model dharahara("../res/objects/scene/dharahara.obj");
 
     //projection view matrices init
@@ -360,8 +358,6 @@ void Application::run()
                 modelShader.setVec3("lightPos", lightPos);
                 modelShader.setVec3("viewPos", camera.Position);
                 ground.Draw(modelShader);
-                trees.Draw(modelShader);
-                base.Draw(modelShader);
                 dharahara.Draw(modelShader);
             }
         }
