@@ -13,6 +13,13 @@ void Camera::updateCameraVectors()
     Up = glm::normalize(glm::cross(Right, Front));
 }
 
+void Camera::Reset(){
+    Yaw = Yaw;
+    Position = glm::vec3(0.0f, 2.0f, 50.0f);
+    Front = glm::vec3(0.0f, 0.0f, -1.0f);
+    WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+}
+
 Camera::Camera( float posX, float posY, float posZ) 
 {
     Position = glm::vec3(posX, posY, posZ);
@@ -54,9 +61,9 @@ void Camera::ProcessKeyboard( CameraMovement direction, float deltaTime )
 void Camera::constrainHeight()
 {
     if ( !FlyMode )
-        Position[1] = 1.5f;
-    if ( Position[1] < 1.5f )
-        Position[1] = 1.5f;
+        Position[1] = 2.0f;
+    if ( Position[1] < 2.0f )
+        Position[1] = 2.0f;
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset)

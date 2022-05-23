@@ -10,7 +10,7 @@
 #include "Model.hpp"
 
 //Camera construct
-Camera camera(20.0f, 1.5f, 30.0f);
+Camera camera(0.0f, 2.0f, 50.0f);
 float lastX = 1366/2;
 float lastY = 768/2;
 bool firstMouse = true;
@@ -87,6 +87,7 @@ void Application::run()
     unsigned int square_indices[] = {
         0, 1, 2, 0, 3, 2
     };
+
     objects square;
     {
         glGenVertexArrays(1, &square.vao);
@@ -102,6 +103,7 @@ void Application::run()
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
     }
+    
     Shader squareShader("basicTexture.shader");
     // ****************************** Square End ******************************
 
@@ -207,11 +209,11 @@ void Application::run()
 
     //cubeShader
     Shader cubeShader("plainCube.shader");
-    glm::vec3 lightPos(-25.0f, 25.0f, 25.0f);
+    glm::vec3 lightPos(-250.0f, 250.0f, 250.0f);
 
     //model
     Shader modelShader("Model.shader");
-    Model ground("../res/objects/scene/ground.obj");
+
     Model dharahara("../res/objects/scene/dharahara.obj");
 
     //projection view matrices init
@@ -234,26 +236,26 @@ void Application::run()
         view = camera.GetViewMatrix();
         
         // ****************************** Plain ******************************
-        // {
-        //     squareShader.use();
-        //     float scaleFactor = 1;
-        //     int width = 40;
-        //     for (int i = -1 * width; i <= width; i++)
-        //     {
-        //         for (int j = -1 * width; j <= width; j++)
-        //         {
-        //             model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        //             model = glm::scale(model, glm::vec3(scaleFactor));
-        //             model = glm::translate(model, glm::vec3(i * scaleFactor * 2, j * scaleFactor * 2, 0.0f));
-        //             transform = projection * view * model;
-        //             squareShader.setMat4("transform", transform);
-        //             squareShader.setInt("texture1", 0);
-        //             plainTexture.Bind(0);
-        //             glBindVertexArray(square.vao);
-        //             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        //         }
-        //     }
-        // }
+        {
+            squareShader.use();
+            float scaleFactor = 8;
+            int width = 20;
+            for (int i = -1 * width; i <= width; i++)
+            {
+                for (int j = -1 * width; j <= width; j++)
+                {
+                    model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                    model = glm::scale(model, glm::vec3(scaleFactor));
+                    model = glm::translate(model, glm::vec3(i * 2, j * 2, 0.0f));
+                    transform = projection * view * model;
+                    squareShader.setMat4("transform", transform);
+                    squareShader.setInt("texture1", 0);
+                    plainTexture.Bind(0);
+                    glBindVertexArray(square.vao);
+                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                }
+            }
+        }
 
         // ****************************** SkyBlock ******************************
         {
@@ -335,31 +337,30 @@ void Application::run()
         }
 
         //light
-        {
-            model = glm::mat4(1.0f);
-            model = glm::scale(model, glm::vec3(0.2f));
-            model = glm::translate(model, lightPos / 0.2f);
-            transform = projection * view * model;
-            cubeShader.use();
-            cubeShader.setMat4("transform", transform);
-            glBindVertexArray(cube.vao);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        // {
+        //     model = glm::mat4(1.0f);
+        //     model = glm::scale(model, glm::vec3(0.2f));
+        //     model = glm::translate(model, lightPos / 0.2f);
+        //     transform = projection * view * model;
+        //     cubeShader.use();
+        //     cubeShader.setMat4("transform", transform);
+        //     glBindVertexArray(cube.vao);
+        //     glDrawArrays(GL_TRIANGLES, 0, 36);
+        // }
+
+        //constant model transform
+        model = glm::mat4(1.0f);
+        transform = projection * view * model;
 
         //model
         {
             modelShader.use();
-            for (int i = 0; i < 9; i++)
-            {
-                model = glm::mat4(1.0f);
-                transform = projection * view * model;
-                modelShader.setMat4("transform", transform);
-                modelShader.setMat4("model", model);
-                modelShader.setVec3("lightPos", lightPos);
-                modelShader.setVec3("viewPos", camera.Position);
-                ground.Draw(modelShader);
-                dharahara.Draw(modelShader);
-            }
+            modelShader.setMat4("transform", transform);
+            modelShader.setMat4("model", model);
+            modelShader.setVec3("lightPos", lightPos);
+            modelShader.setVec3("viewPos", camera.Position);
+            modelShader.setVec3("materialP", glm::vec3(0.5, 1.0, 64.0));
+            dharahara.Draw(modelShader);
         }
 
         glfwSwapBuffers(m_window);
@@ -388,4 +389,8 @@ void Application::processEvent()
         camera.ProcessKeyboard(UP, deltaTime);
     if ( glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS )
         camera.ProcessKeyboard(DOWN, deltaTime);
+    if ( glfwGetKey(m_window, GLFW_KEY_G) == GLFW_PRESS )
+        camera.OnGround();
+    if ( glfwGetKey(m_window, GLFW_KEY_R) == GLFW_PRESS )
+        camera.Reset();
 }

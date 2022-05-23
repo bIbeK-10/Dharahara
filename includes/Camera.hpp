@@ -42,6 +42,8 @@ public:
     void constrainHeight();
     void ProcessMouseMovement(float xoffset, float yoffset);
     void ProcessMouseScroll(float yoffset);
+    void OnGround() { Position.y = 1.5f; }
+    void Reset();
 
 private:
     void updateCameraVectors();

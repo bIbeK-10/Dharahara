@@ -31,13 +31,14 @@ in vec3 FragPos;
 uniform sampler2D texture_diffuse1;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform vec3 materialP;
 
 vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
 void main()
 {    
     // ambient
-    float ambientStrength = 0.5;
+    float ambientStrength = materialP.x;
     vec3 ambient = ambientStrength * lightColor;
 
     // diffuse 
@@ -47,10 +48,10 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     // specular
-    float specularStrength = 1;
+    float specularStrength = materialP.y;
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), int(materialP.z));
     vec3 specular = specularStrength * spec * lightColor;  
         
     FragColor = vec4((ambient + diffuse + specular), 1.0) * texture(texture_diffuse1, TexCoords);
